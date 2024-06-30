@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import React, { useState, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber';
 import Loader from '../components/Loader';
 
@@ -12,15 +12,18 @@ import Sky from '../models/Sky.jsx';
 
 
 const Home = () => {
+  const [isRotating, setIsRotating] = useState(false);
+
+
   const adjustJapanForScreenSize = () => {
     let screenScale = null;
-    let screenPosition = [0, -6.5, -43];
-    let rotation = [0.1, 4.7, 0];
+    let screenPosition = [30, -10.5, -43];
+    let rotation = [24, 4.7, 0];
 
     if(window.innerWidth < 768) {
         screenScale = [0.9, 0.9, 0.9];
     } else {
-        screenScale = [ 1, 1, 1];
+        screenScale = [ 1, 2, 1];
     }
 
     return [screenScale, screenPosition, rotation];
@@ -44,6 +47,8 @@ const [japanScale, japanPosition, japanRotation] = adjustJapanForScreenSize();
                   position={japanPosition}
                   sclae={japanScale}
                   rotation={japanRotation}
+                  isRotating={isRotating}
+                  setIsRotating={isRotating}
                 />
                 {/* <Sky /> */}
             </Suspense>

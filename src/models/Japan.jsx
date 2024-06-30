@@ -6,26 +6,90 @@ Source: https://sketchfab.com/3d-models/japanese-restaurant-inakaya-97594e92c418
 Title: Japanese Restaurant "Inakaya"
 */
 
-import React, { useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei'
 import { a } from '@react-spring/three';
 
 import japanScene from '../assets/3d/japanese_restaurant_inakaya.glb'
 
-const Japan = (props) => {
+const Japan = (isRotating, setIsRotating, ...props) => {
   const japanRef = useRef();
+
+//viewports
+//User is able to view from the mouse POV
+
+  const {gl, viewport } = useThree();
+
+//Nodes and materials for the scene
 
   const { nodes, materials } = useGLTF(japanScene);
 
+//Insert clicker + handle + evenlisteners
+
+const lastXaxis = useRef(0);
+const rotationSpeed = useRef(0);
+const dampingFactor = 0.95;
+
+
+const handlePointerDown = (event) => {
+  event.stopPropagation();
+  event.preventDefault();
+  setIsRotating(true);
+
+  const clientX = event.touches
+  ? event.touches[0].clientX 
+  : event.clientX;
+
+  lastXaxis.current = clientX;
+}
+const handlePointerUp = (event) => {
+  event.stopPropagation();
+  event.preventDefault();
+  setIsRotating(false);
+}
+const handlePointerMove = (event) => {
+  event.stopPropagation();
+  event.preventDefault();
+
+  if(isRotating) {
+    const clientX = event.touches 
+    ? event.touches[0].clientX 
+    : event.clientX;
+  
+    const delta = (clientX - lastXaxis.current) / viewport.width;
+    japanRef.current.rotation.y += delta * 0.009 * Math.PI;
+  
+    lastXaxis.current = clientX;
+  
+    rotationSpeed.current = delta * 0.2 * Math.PI;
+  }
+}
+
+useEffect(() => {
+  document.addEventListener('pointerdown', handlePointerDown);
+  document.addEventListener('pointerup', handlePointerUp);
+  document.addEventListener('pointermove', handlePointerMove);
+
+  return () => {
+  document.removeEventListener('pointerdown', handlePointerDown);
+  document.removeEventListener('pointerup', handlePointerUp);
+  document.removeEventListener('pointermove', handlePointerMove);
+  }
+}, [ gl, handlePointerDown, handlePointerUp, handlePointerMove])
+
+
+
+
+
   return (
     <a.group ref={japanRef} {...props} >
-            <group rotation={[-Math.PI / 2, 0, 1.5]} scale={.0105}>
+            <group rotation={[-Math.PI / 2, 0, 2]} scale={.0085}>
         <group rotation={[Math.PI / 2, 1, 0]}>
           <group
-            position={[248.516, 848.858, 1044.06]}
-            rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
-            scale={100}>
+            position={[1028.516, 304.858, 844.06]}
+            rotation={[-Math.PI / 2, 0, -Math.PI]}
+            scale={55}>
             <mesh
               castShadow
               receiveShadow
